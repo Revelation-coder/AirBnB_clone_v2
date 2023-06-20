@@ -114,44 +114,51 @@ class HBNBCommand(cmd.Cmd):
 		pass
 
 	def do_create(self, args):
-		"""Usage: create <class name> <param 1> <param 2> <param 3>...
-		Create a new class instance with given parameters and print its id.
-		"""
-		try:
-			if not args:
-				raise SyntaxError()
-		my_list = args.split(" ")
-		
-		kwargs = {}
-		for i in range(1, len(my_list)):
-			param = my_list[i]
-			if "=" in param:
-				key, value = tuple(param.split("="))
-				if value[0] == '"':
-					value = value.strip('"').replace("_", " ")
-				else:
-					try:
-						value = eval(value)
-					except (SyntaxError, NameError):
-						continue
-				kwargs[key] = value
+		"""Create a new instance of a class"""
+		if not args:
+			print("** class name missing **")
+			return
 
-		if kwargs == {}:
-			raise SyntaxError("No valid parameters provided")
+		arg_list = args.split()
+		class_name = arg_list[0]
+		param_list = arg_list[1:]
 
-		class_name = my_list[0]
-		if class_name in self.__classes:
-			obj = eval(class_name)(**kwargs)
-			storage.new(obj)
-			print(obj.id)
-			obj.save()
-		else:
-			raise NameError("Class doesn't exist")
+		if class_name not in self.classes:
+			print("** class doesn't exist **")
+			return
 
-	except SyntaxError:
-		print("** Invalid syntax or no parameters provided **")
-	except NameError:
-		print("** Class doesn't exist **")
+		new_object = self.classes[class_name]()
+
+		for param in param_list:
+			split_param = param.split('=')
+			if len(split_param) != 2:
+				continue
+
+			key, value = split_param
+
+			# Handle string value
+			if value.startswith('"') and value.endswith('"'):
+				value = value[1:-1].replace('_', ' ').replace('\\"', '"')
+
+			# Handle float value
+			elif '.' in value and all(char.isdigit() or char == '.' for char in value):
+				try:
+					value = float(value)
+				except ValueError:
+					continue
+
+			# Handle integer value
+			elif value.isdigit():
+				value = int(value)
+
+			# Skip unrecognized or incorrect parameter
+			else:
+				continue
+
+			setattr(new_object, key, value)
+
+		new_object.save()
+		print(new_object.id)
 
 	def help_create(self):
 		""" Help information for the create method """
