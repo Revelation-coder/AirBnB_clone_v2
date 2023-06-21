@@ -233,22 +233,44 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: destroy <className> <objectId>\n")
 
     def do_all(self, args):
-        """ Shows all objects, or all objects of a class"""
-        print_list = []
+        """Create a new instance of a class"""
+        if not args:
+            print("** class name missing **")
+            return
 
-        if args:
-            args = args.split(' ')[0]  # remove possible trailing args
-            if args not in HBNBCommand.classes:
-                print("** class doesn't exist **")
-                return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
-        else:
-            for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
+        arg_list = args.split()
+        class_name = arg_list[0]
+        param_list = arg_list[1:]
 
-        print(print_list)
+        if class_name not in self.classes:
+            print("** class doesn't exist **")
+            return
+
+        new_object = self.classes[class_name]()
+
+        for param in param_list:
+            split_param = param.split('=')
+            if len(split_param) != 2:
+                continue
+
+            key, value = split_param
+
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1].replace('_', ' ').replace('\\"', '"')
+            elif '.' in value and all(char.isdigit() or char == '.' for char in value):
+                try:
+                    value = float(value)
+                except ValueError:
+                    continue
+            elif value.isdigit():
+                value = int(value)
+            else:
+                continue
+
+            setattr(new_object, key, value)
+
+        new_object.save()
+        print(new_object.id)
 
     def help_all(self):
         """ Help information for the all command """
