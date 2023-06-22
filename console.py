@@ -112,7 +112,7 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """ Overrides the emptyline method of CMD """
         pass
-    
+
     def do_create(self, args):
         """Create a new instance of a class"""
         if not args:
@@ -138,7 +138,9 @@ class HBNBCommand(cmd.Cmd):
 
             if value.startswith('"') and value.endswith('"'):
                 value = value[1:-1].replace('_', ' ').replace('\\"', '"')
-            elif '.' in value and all(char.isdigit() or char == '.' for char in value):
+            elif '.' in value and all(
+                char.isdigit() or char == '.' for char in value
+            ):
                 try:
                     value = float(value)
                 except ValueError:
@@ -346,6 +348,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
