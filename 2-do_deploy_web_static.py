@@ -4,7 +4,7 @@ from fabric.contrib import files
 from fabric.api import env, put, run
 import os
 
-env.hosts = ['34.73.222.49', '54.82.121.70']
+env.hosts = ['100.25.166.233', '52.86.149.92']
 
 
 def do_deploy(archive_path):
@@ -27,5 +27,6 @@ def do_deploy(archive_path):
         run('sudo rm -rf /data/web_static/current')
         run('sudo ln -s {} /data/web_static/current'.format(dest))
         return True
-    except:
+    except Exception as e:
+        print("Error:", str(e))
         return False
